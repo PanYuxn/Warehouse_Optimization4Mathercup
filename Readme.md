@@ -10,6 +10,7 @@
 
 `src/...`：数据部分和赛题，好像就用了其中几个数据。这里新增了两列进行一下介绍。
 
+
 | 列名                 | 含义                                                                       |
 | ------------------ | ------------------------------------------------------------------------ |
 | Category_for_Price | 对所有SKU价格进行排序后均分对价格量化成四种类型，分别为low、medium<br>、high和veryhigh.               |
@@ -18,6 +19,7 @@
 
 
 # 模型部分
+
 ## Notation
 
 | 集合             | 集合含义                        |
@@ -46,6 +48,7 @@
 | $s_{k,p,w}$    | 表示$SKU_{k,p,w}$在周期内的订货点     |
 | $il_{k,p,w,t}$ | 表示$SKU_{k,p,w}$在第t天是否处于缺货状态 |
 | $ip_{k,p,w,t}$ | 表示$SKU_{k,p,w}$在第天天是否进行补货   |
+
 ## Asuumption
 该模型的假设主要包括成本、审查期、提前期、库存四个方面，具体假设如下：
 
@@ -68,9 +71,11 @@
 1. 持有成本和缺货成本
 
 $$f_{1}=\sum_{t}\sum_{k}\sum_{p}\sum_{w}P_{p}(IC_{k,p,w}IE_{k,p,w,t}+SC_{k,p,w}O_{k,p,w})$$
+
 2. 库存周转天数
 
 $$f_{2}=\sum_{k}\sum_{p}\sum_{w}\frac{(IB_{k,p,w,l}+IE_{k,p,w,t})}{2}\cdot\frac{T}{\sum_{t}D_{k,p,w,t}}$$
+
 3. 订购成本
 
 $$f_{3}=\sum_{k}\sum_{p}\sum_{w}SP_{p}\sum_{t}ip_{k,p,w,t}$$
@@ -79,15 +84,19 @@ $$f_{3}=\sum_{k}\sum_{p}\sum_{w}SP_{p}\sum_{t}ip_{k,p,w,t}$$
 1. 期初库存约束
 
 $$IB_{k,p,w,1}=5,\forall k\in K,\forall p \in P ,\forall w \in W$$
+
 2. 商品缺货量约束
 
-$$\begin{aligned} & i l_{k, p, w, t}=\left\{\begin{array}{l} 0, \text { if } I B_{k, p, w, t} \geq D_{k, p, w, t} \\ 1, \text { otherwise } \end{array}, \forall t \in\{1,2,3\}, \forall k \in K, \forall p \in P, \forall w \in W \cdot\right. \\ & O_{k, p, w, t}=\left\{\begin{array}{l} 0, \text { if } i l_{k, p, w, t}=0 \\ D_{k, p, w, t}-I B_{k, p, w, t}, \\ \text { otherwise } \end{array}, \forall t \in\{1,2,3\}, \forall k \in K, \forall p \in P, \forall w \in W \cdot\right. \\ & i l_{k, p, w, t}=\left\{\begin{array}{l} 0, \text { if } I B_{k, p, w, t}+Q_{k, p, w, t} \geq D_{k, p, w, t} \\ 1, \text { otherwise } \end{array}, \forall t \in\{4,5,6, \ldots, 15\}, \forall k \in K, \forall p \in P, \forall w \in W \cdot\right. \\ & O_{k, p, w, t}=\left\{\begin{array}{l} 0, \text { if } i l_{k, p, w t}=0 \\ D_{k, p, w, t}-I B_{k, p, w, t}-Q_{k, p, w, t}, \text { otherwise } \end{array}, \forall t \in\{4,5,6, \ldots, 15\}, \forall k \in K, \forall p \in P, \forall w \in W\right. \\ & \end{aligned}$$
+![img.png](src%2Fimg.png)
+
 3. 库存更新约束
 
-$$\begin{aligned} & I E_{k, p, w, t}=\left\{\begin{array}{l} I B_{k, p, w, t}-D_{k, p, w, t}, \text { if } i l_{k, p, w t}=0 \\ 0, \text { otherwise } \end{array}, \forall t \in\{4,5,6, \ldots, 15\}, \forall k \in K, \forall p \in P, \forall w \in W\right. \\ & I E_{k, p, w, t}=\left\{\begin{array}{l} I B_{k, p, w, t}-D_{k, p, w, t}+Q_{k, p, w, t}, \text { if } i l_{k, p, w t}=0 \\ 0, \text { otherwise } \end{array}, \forall t \in\{4,5,6, \ldots, 15\}, \forall k \in K, \forall p \in P, \forall w \in W\right. \\ & I B_{k, p, w, t}=I E_{k, p, w, t-1}, \forall t \in\{2,3,4, \ldots, 15\}, \forall k \in K, \forall p \in P, \forall w \in W \cdot \\ & \end{aligned}$$
+![img_1.png](src%2Fimg_1.png)
+
 4. 商品采购约束
 
-$$\begin{aligned} & i p_{k, p, w, t}=\left\{\begin{array}{l} 0, \text { if } I E_{k, p, w, t} \geq s_{k, p, w, t} \\ 1, \text { otherwise } \end{array}, \forall t \in\{1,2,3, \ldots, 15\}, \forall k \in K, \forall p \in P, \forall w \in W \cdot\right. \\ & Q_{k, p, w, t}=\left\{\begin{array}{l} S_{k, p, w, t}-I E_{k, p, w, t} \text { if } i p_{k, p, w, t}=1 \\ 0, \text { otherwise } \end{array}, \forall t \in\{1,2,3, \ldots, 15\}, \forall k \in K, \forall p \in P, \forall w \in W\right. \\ & \end{aligned}$$
+![img_2.png](src%2Fimg_2.png)
+
 5. 仓库容量约束
 
 $$\sum_{k}\sum_{p}(IE_{k,p,w,t}+Q_{k,p,w,t})\le capa_{w},\forall t\in T,\forall w \in W$$
